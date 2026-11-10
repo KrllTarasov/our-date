@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приглашение ❤️</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22>
+    <text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap');
+
+        :root {
+            --pink: #f8c8dc;
+            --blue: #c8e6f8;
+            --deep-pink: #d98ca8;
+            --deep-blue: #7a9eb8;
+            --text: #5a4a52;
+            --white: #fffafc;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--blue) 0%, var(--pink) 100%);
+            min-height: 100vh;
+            display: flex;
+            padding: 20px;
+            color: var(--text);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Плавающие сердечки */
+        .hearts-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .heart-float {
+            position: absolute;
+            color: rgba(217, 140, 168, 0.25);
+            font-size: 24px;
+            animation: floatUp linear infinite;
+            animation-fill-mode: backwards;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .card {
+            background: rgba(255, 250, 252, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(122, 158, 184, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            margin: auto;
+            transition: max-width 0.5s ease;
+        }
+        .card.wide { max-width: 560px; }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #e8f0f8, #f8e8f0);
+            border-radius: 16px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--deep-blue);
+            font-size: 14px;
+            font-weight: 300;
+            overflow: hidden;
+            position: relative;
+            border: 2px dashed rgba(217, 140, 168, 0.3);
+        }
+        .photo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .photo-placeholder span { padding: 10px; text-align: center; }
+
+        .stage { display: none; }
+        .stage.active { display: block; animation: fadeIn 0.8s ease forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2 {
+            font-weight: 400;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        h1 { font-size: 28px; color: var(--deep-pink); }
+        h2 { font-size: 22px; color: var(--deep-blue); }
+        .subtext {
+            font-size: 15px;
+            font-weight: 300;
+            color: #8a7a82;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--deep-pink), var(--deep-blue));
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 400;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(217, 140, 168, 0.3);
+            margin: 8px;
+            display: inline-block;
+        }
+        .btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 12px 28px rgba(217, 140, 168, 0.4);
+        }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-arrow {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 20px auto 0;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        #btn-no {
+            background: #e0e0e0;
+            color: #666;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        #btn-no:hover {
+            background: #d0d0d0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            transform: none;
+        }
+
+        /* --- Таймер --- */
+        .countdown-label {
+            font-size: 14px;
+            color: #8a7a82;
+            font-weight: 300;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0 25px;
+        }
+        .time-unit {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 14px;
+            padding: 12px 10px;
+            min-width: 70px;
+            box-shadow: 0 4px 12px rgba(122, 158, 184, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .time-num {
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--deep-pink);
+            line-height: 1;
+            margin-bottom: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+        .time-label {
+            font-size: 11px;
+            color: #8a7a82;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+        .countdown-done {
+            font-size: 20px;
+            color: var(--deep-pink);
+            font-weight: 500;
+            padding: 20px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 14px;
+            line-height: 1.6;
+        }
+
+        /* --- Лента фотографий --- */
+        .photo-ribbon {
+            overflow: hidden;
+            width: 100%;
+            padding: 15px 0;
+            margin: 10px 0 20px;
+            position: relative; /* Добавили для позиционирования шторок */
+        }
+
+        /* Левая шторка (затухание) */
+        .photo-ribbon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            z-index: 2;
+            pointer-events: none; /* Чтобы можно было кликать по фото под шторкой */
+            background: linear-gradient(to right, rgba(255, 250, 252, 0.95), transparent);
+        }
+
+        /* Правая шторка (затухание) */
+        .photo-ribbon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 40px;
+            z-index: 2;
+            pointer-events: none;
+            background: linear-gradient(to left, rgba(255, 250, 252, 0.95), transparent);
+        }
+
+        .ribbon-track {
+            display: flex;
+            gap: 12px;
+            width: max-content;
+            animation: ribbonScroll 50s linear infinite;
+        }
+        .photo-ribbon:hover .ribbon-track {
+            animation-play-state: paused;
+        }
+        @keyframes ribbonScroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .ribbon-item {
+            flex-shrink: 0;
+            width: 120px;
+            height: 160px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e8f0f8, #f8e8f0);
+            border: 2px solid rgba(255,255,255,0.9);
+            box-shadow: 0 4px 12px rgba(122,158,184,0.15);
+            position: relative;
+        }
+        .ribbon-item::before {
+            content: '📸';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            opacity: 0.4;
+        }
+        .ribbon-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .heart-divider {
+            font-size: 20px;
+            margin: 15px 0;
+            opacity: 0.7;
+        }
+
+        .final-details {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+        .final-details p { margin-bottom: 8px; }
+        .final-details strong { color: var(--deep-pink); font-weight: 600; }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            z-index: 999;
+            pointer-events: none;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 28px 18px; }
+            .card.wide { max-width: 100%; }
+            h1 { font-size: 24px; }
+            h2 { font-size: 19px; }
+            .photo-placeholder { height: 180px; }
+            .btn { padding: 12px 26px; font-size: 15px; }
+            .time-unit { padding: 10px 8px; min-width: 60px; }
+            .time-num { font-size: 22px; }
+            .countdown { gap: 8px; }
+            .ribbon-item { width: 100px; height: 140px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<div class="card" id="card">
+    <!-- ЭТАП 1 -->
+    <div class="stage active" id="stage1">
+        <div class="photo-placeholder">
+            <img src="Images/kiss.jpg" alt="Наше фото 1">
+        </div>
+        <h1><b>Привет, Анютка ❤️</b></h1>
+        <p class="subtext">Я тебя очень сильно люблю и...</p>
+        <button class="btn btn-arrow" onclick="nextStage(2)">→</button>
+    </div>
+
+    <!-- ЭТАП 2 -->
+    <div class="stage" id="stage2">
+        <div class="photo-placeholder">
+            <img src="Images/kiss-restaurant.jpg" alt="Наше фото 2">
+        </div>
+        <h2><b>Хочешь провести со мной<br>романтично время 1-го декабря?</b></h2>
+        <p class="subtext"><b>Полгода вместе</b> — это ведь только начало ✨</p>
+        <div class="btn-group">
+            <button class="btn" id="btn-yes" onclick="goToFinal()">Да 💖</button>
+            <button class="btn" id="btn-no">Нет</button>
+        </div>
+    </div>
+
+    <!-- ЭТАП 3 -->
+    <div class="stage" id="stage3">
+        <div class="photo-placeholder">
+            <img src="Images/kiss-sunset.png" alt="Наше фото 3">
+        </div>
+        <h2><b>До встречи, любимая 💗</b></h2>
+
+        <div class="countdown-label">Увидимся через:</div>
+        <div class="countdown" id="countdown">
+            <div class="time-unit">
+                <span class="time-num" id="cd-days">--</span>
+                <span class="time-label" id="cd-days-label">дней</span>
+            </div>
+            <div class="time-unit">
+                <span class="time-num" id="cd-hours">--</span>
+                <span class="time-label" id="cd-hours-label">часов</span>
+            </div>
+            <div class="time-unit">
+                <span class="time-num" id="cd-minutes">--</span>
+                <span class="time-label" id="cd-minutes-label">минут</span>
+            </div>
+            <div class="time-unit">
+                <span class="time-num" id="cd-seconds">--</span>
+                <span class="time-label" id="cd-seconds-label">секунд</span>
+            </div>
+        </div>
+
+        <div class="photo-ribbon">
+            <div class="ribbon-track" id="ribbonTrack"></div>
+        </div>
+
+        <div class="heart-divider">♡ ♡ ♡</div>
+        <div class="final-details">
+            <p><strong>📅 Когда:</strong> 1 декабря</p>
+            <p><strong>🍽️ Куда:</strong> Roof, ул. Советской Армии, 143А</p>
+            <p><strong>⏰ Во сколько я зайду:</strong> 18:00</p>
+            <p style="margin-top: 15px; font-weight: 300;"><b>Я очень жду этого вечера! Спасибо, что ты есть ❤️‍🔥</b></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============ НАСТРОЙКИ ============
+    const MEETING_HOUR = 18;  // Час встречи (0-23)
+    const MEETING_MINUTE = 0;  // Минуты встречи (0-59)
+
+    // Список фотографий для ленты-карусели
+    const RIBBON_PHOTOS = [
+        'hug.jpg',
+        'son1.jpg',
+        'kiss.jpg',
+        'box.jpg',
+        'kiss-restaurant.jpg',
+        'son2.jpg',
+        'walk.jpg',
+        'kiss-sunset.png'
+    ];
+
+    // --- Фоновые сердечки ---
+    function createHearts() {
+        const container = document.getElementById('heartsBg');
+        const symbols = ['❤', '♡', '❥', '🌸'];
+        for (let i = 0; i < 18; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart-float';
+            heart.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.fontSize = (12 + Math.random() * 22) + 'px';
+            heart.style.animationDuration = (8 + Math.random() * 10) + 's';
+            heart.style.animationDelay = Math.random() * 10 + 's';
+            container.appendChild(heart);
+        }
+    }
+    createHearts();
+
+    // --- Переключение этапов ---
+    function nextStage(stageNum) {
+        document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+        document.getElementById('stage' + stageNum).classList.add('active');
+        document.getElementById('card').classList.toggle('wide', stageNum === 3);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- Убегающая кнопка "Нет" ---
+    const btnNo = document.getElementById('btn-no');
+    const escapeEvent = 'ontouchstart' in window ? 'touchstart' : 'mouseenter';
+
+    btnNo.addEventListener(escapeEvent, function(e) {
+        if (e.type === 'touchstart') e.preventDefault();
+
+        const card = document.getElementById('card');
+        const cardRect = card.getBoundingClientRect();
+        const btnRect = btnNo.getBoundingClientRect();
+
+        const padding = 20;
+        const maxLeft = cardRect.width - btnRect.width - padding * 2;
+        const maxTop = cardRect.height - btnRect.height - padding * 2;
+
+        const randomLeft = padding + Math.random() * Math.max(0, maxLeft);
+        const randomTop = padding + Math.random() * Math.max(0, maxTop);
+
+        btnNo.style.position = 'absolute';
+        btnNo.style.left = randomLeft + 'px';
+        btnNo.style.top = randomTop + 'px';
+        btnNo.style.margin = '0';
+    });
+
+    btnNo.addEventListener('click', function(e) {
+        e.preventDefault();
+        btnNo.style.transform = 'translateX(5px)';
+        setTimeout(() => { btnNo.style.transform = ''; }, 150);
+    });
+
+    // --- Лента фотографий (бесконечная карусель) ---
+    function buildRibbon() {
+        const track = document.getElementById('ribbonTrack');
+        if (track.children.length) return; // уже построена
+
+        const itemsHTML = RIBBON_PHOTOS.map((src, i) =>
+            `<div class="ribbon-item">
+            <img src="Images/${src}" alt="Фото ${i + 1}" onerror="this.style.display='none'">
+        </div>`
+        ).join('');
+        // Дублируем набор для бесшовной анимации
+        track.innerHTML = itemsHTML + itemsHTML;
+    }
+
+    // --- Обратный отсчёт ---
+    function pluralize(n, one, few, many) {
+        const mod10 = n % 10;
+        const mod100 = n % 100;
+        if (mod100 >= 11 && mod100 <= 14) return many;
+        if (mod10 === 1) return one;
+        if (mod10 >= 2 && mod10 <= 4) return few;
+        return many;
+    }
+
+    // Умный расчёт даты: если 1 декабря уже прошло — берём следующее
+    function getTargetDate() {
+        const now = new Date();
+        const y = now.getFullYear();
+        let target = new Date(y, 11, 1, MEETING_HOUR, MEETING_MINUTE, 0);
+        if (target.getTime() <= now.getTime()) {
+            target = new Date(y + 1, 11, 1, MEETING_HOUR, MEETING_MINUTE, 0);
+        }
+        return target;
+    }
+
+    let countdownInterval = null;
+    let countdownStarted = false;
+
+    function startCountdown() {
+        if (countdownStarted) return;
+        countdownStarted = true;
+
+        const target = getTargetDate();
+
+        function update() {
+            const now = new Date();
+            let diff = target.getTime() - now.getTime();
+
+            if (diff <= 0) {
+                document.getElementById('countdown').outerHTML =
+                    '<div class="countdown-done">Этот день настал! 🎉<br>Скоро увидимся ❤️</div>';
+                clearInterval(countdownInterval);
+                return;
+            }
+
+            const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+            diff -= days * 1000 * 60 * 60 * 24;
+            const hours   = Math.floor(diff / (1000 * 60 * 60));
+            diff -= hours * 1000 * 60 * 60;
+            const minutes = Math.floor(diff / (1000 * 60));
+            diff -= minutes * 1000 * 60;
+            const seconds = Math.floor(diff / 1000);
+
+            document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+            document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('cd-minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('cd-seconds').textContent = String(seconds).padStart(2, '0');
+
+            document.getElementById('cd-days-label').textContent = pluralize(days, 'день', 'дня', 'дней');
+            document.getElementById('cd-hours-label').textContent = pluralize(hours, 'час', 'часа', 'часов');
+            document.getElementById('cd-minutes-label').textContent = pluralize(minutes, 'минута', 'минуты', 'минут');
+            document.getElementById('cd-seconds-label').textContent = pluralize(seconds, 'секунда', 'секунды', 'секунд');
+        }
+
+        update();
+        countdownInterval = setInterval(update, 1000);
+    }
+
+    // --- Переход на финальный этап ---
+    function goToFinal() {
+        nextStage(3);
+        buildRibbon();
+        startCountdown();
+        launchConfetti();
+    }
+
+    // --- Конфетти ---
+    function launchConfetti() {
+        const colors = ['#f8c8dc', '#c8e6f8', '#d98ca8', '#7a9eb8', '#ffffff', '#f0a0b8'];
+        for (let i = 0; i < 60; i++) {
+            setTimeout(() => {
+                const piece = document.createElement('div');
+                piece.className = 'confetti';
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.width = (6 + Math.random() * 8) + 'px';
+                piece.style.height = (6 + Math.random() * 8) + 'px';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), 4000);
+            }, i * 40);
+        }
+    }
+</script>
+</body>
+</html>
