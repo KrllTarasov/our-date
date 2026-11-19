@@ -146,7 +146,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
+            font-size: 32px;
+            font-weight: 600;
             margin: 20px auto 0;
         }
 
@@ -260,9 +261,6 @@
             width: max-content;
             animation: ribbonScroll 50s linear infinite;
         }
-        .photo-ribbon:hover .ribbon-track {
-            animation-play-state: paused;
-        }
         @keyframes ribbonScroll {
             from { transform: translateX(0); }
             to { transform: translateX(-50%); }
@@ -354,7 +352,7 @@
         </div>
         <h1><b>Привет, Анютка ❤️</b></h1>
         <p class="subtext">Я тебя очень сильно люблю и...</p>
-        <button class="btn btn-arrow" onclick="nextStage(2)">→</button>
+        <button class="btn btn-arrow" onclick="nextStage(2)">➜</button>
     </div>
 
     <!-- ЭТАП 2 -->
@@ -406,7 +404,10 @@
             <p><strong>📅 Когда:</strong> 1 декабря</p>
             <p><strong>🍽️ Куда:</strong> Хокку, Московское ш., 36А</p>
             <p><strong>⏰ Во сколько я зайду:</strong> Договоримся)</p>
-            <p style="margin-top: 15px; font-weight: 300;"><b>Я очень жду этого вечера! Спасибо, что ты есть ❤️‍🔥</b></p>
+            <div style="margin-top: 20px; text-align: center;">
+                <p style="font-weight: 300; margin-bottom: 5px;">Я очень жду этого вечера!</p>
+                <p style="font-size: 20px; font-weight: 600; color: var(--deep-pink); margin-bottom: 0;">Спасибо, что ты есть ❤️‍🔥</p>
+            </div>
         </div>
     </div>
 </div>
@@ -509,15 +510,31 @@
         return many;
     }
 
-    // Умный расчёт даты: если 1 декабря уже прошло — берём следующее
-    function getTargetDate() {
+    // Умный расчёт даты и статуса
+    function getTimerState() {
         const now = new Date();
         const y = now.getFullYear();
-        let target = new Date(y, MEETING_MONTH, MEETING_DAY, MEETING_HOUR, MEETING_MINUTE, 0);
-        if (target.getTime() <= now.getTime()) {
-            target = new Date(y + 1, MEETING_MONTH, MEETING_DAY, MEETING_HOUR, MEETING_MINUTE, 0);
+
+        // Дата события (1 декабря текущего года, 18:00)
+        let targetDec = new Date(y, 11, 1, MEETING_HOUR, MEETING_MINUTE, 0);
+        // Конец дня события (2 декабря, 00:00)
+        let endOfDec = new Date(y, 11, 2, 0, 0, 0);
+
+        // Дата спойлера (1 июня следующего года)
+        let targetJune = new Date(y + 1, 5, 1, MEETING_HOUR, MEETING_MINUTE, 0);
+
+        // 1. Если сейчас день свидания (с 18:00 до полуночи)
+        if (now >= targetDec && now < endOfDec) {
+            return { status: 'today' };
         }
-        return target;
+
+        // 2. Если мы еще до 1 декабря текущего года - считаем до него
+        if (now < targetDec) {
+            return { status: 'countdown', target: targetDec };
+        }
+
+        // 3. Если мы уже после дня свидания (наступило 2 декабря и далее)
+        return { status: 'countdown', target: targetJune };
     }
 
     let countdownInterval = null;
@@ -527,15 +544,29 @@
         if (countdownStarted) return;
         countdownStarted = true;
 
-        const target = getTargetDate();
+        const state = getTimerState();
+
+        // Если зашли в день события - сразу показываем текст
+        if (state.status === 'today') {
+            const countdownEl = document.getElementById('countdown');
+            if (countdownEl) {
+                countdownEl.outerHTML = '<div class="countdown-done">Этот день настал! 🎉<br>Скоро увидимся ❤️</div>';
+            }
+            return;
+        }
+
+        const target = state.target;
 
         function update() {
             const now = new Date();
             let diff = target.getTime() - now.getTime();
 
             if (diff <= 0) {
-                document.getElementById('countdown').outerHTML =
-                    '<div class="countdown-done">Этот день настал! 🎉<br>Скоро увидимся ❤️</div>';
+                // На случай, если страница была открыта и время перешло за 18:00
+                const countdownEl = document.getElementById('countdown');
+                if (countdownEl) {
+                    countdownEl.outerHTML = '<div class="countdown-done">Этот день настал! 🎉<br>Скоро увидимся ❤️</div>';
+                }
                 clearInterval(countdownInterval);
                 return;
             }
@@ -548,15 +579,18 @@
             diff -= minutes * 1000 * 60;
             const seconds = Math.floor(diff / 1000);
 
-            document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
-            document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('cd-minutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('cd-seconds').textContent = String(seconds).padStart(2, '0');
+            // Проверка на существование элементов (на случай если DOM уже изменился)
+            if(document.getElementById('cd-days')) {
+                document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+                document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('cd-minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('cd-seconds').textContent = String(seconds).padStart(2, '0');
 
-            document.getElementById('cd-days-label').textContent = pluralize(days, 'день', 'дня', 'дней');
-            document.getElementById('cd-hours-label').textContent = pluralize(hours, 'час', 'часа', 'часов');
-            document.getElementById('cd-minutes-label').textContent = pluralize(minutes, 'минута', 'минуты', 'минут');
-            document.getElementById('cd-seconds-label').textContent = pluralize(seconds, 'секунда', 'секунды', 'секунд');
+                document.getElementById('cd-days-label').textContent = pluralize(days, 'день', 'дня', 'дней');
+                document.getElementById('cd-hours-label').textContent = pluralize(hours, 'час', 'часа', 'часов');
+                document.getElementById('cd-minutes-label').textContent = pluralize(minutes, 'минута', 'минуты', 'минут');
+                document.getElementById('cd-seconds-label').textContent = pluralize(seconds, 'секунда', 'секунды', 'секунд');
+            }
         }
 
         update();
