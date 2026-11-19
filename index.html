@@ -373,7 +373,7 @@
     <!-- ЭТАП 3 -->
     <div class="stage" id="stage3">
         <div class="photo-placeholder">
-            <img src="Images/kiss-sunset.png" alt="Наше фото 3">
+            <img src="Images/kiss-sunset.jpg" alt="Наше фото 3">
         </div>
         <h2><b>До встречи, любимая 💗</b></h2>
 
@@ -405,7 +405,7 @@
         <div class="final-details">
             <p><strong>📅 Когда:</strong> 1 декабря</p>
             <p><strong>🍽️ Куда:</strong> Roof, ул. Советской Армии, 143А</p>
-            <p><strong>⏰ Во сколько я зайду:</strong> 18:00</p>
+            <p><strong>⏰ Во сколько я зайду:</strong> Договоримся)</p>
             <p style="margin-top: 15px; font-weight: 300;"><b>Я очень жду этого вечера! Спасибо, что ты есть ❤️‍🔥</b></p>
         </div>
     </div>
@@ -415,6 +415,8 @@
     // ============ НАСТРОЙКИ ============
     const MEETING_HOUR = 18;  // Час встречи (0-23)
     const MEETING_MINUTE = 0;  // Минуты встречи (0-59)
+    const MEETING_MONTH = 11;  // Месяц встречи (1-12)
+    const MEETING_DAY = 1;  // День встречи (1-31)
 
     // Список фотографий для ленты-карусели
     const RIBBON_PHOTOS = [
@@ -425,7 +427,7 @@
         'kiss-restaurant.jpg',
         'son2.jpg',
         'walk.jpg',
-        'kiss-sunset.png'
+        'kiss-sunset.jpg'
     ];
 
     // --- Фоновые сердечки ---
@@ -511,9 +513,9 @@
     function getTargetDate() {
         const now = new Date();
         const y = now.getFullYear();
-        let target = new Date(y, 11, 1, MEETING_HOUR, MEETING_MINUTE, 0);
+        let target = new Date(y, MEETING_MONTH, MEETING_DAY, MEETING_HOUR, MEETING_MINUTE, 0);
         if (target.getTime() <= now.getTime()) {
-            target = new Date(y + 1, 11, 1, MEETING_HOUR, MEETING_MINUTE, 0);
+            target = new Date(y + 1, MEETING_MONTH, MEETING_DAY, MEETING_HOUR, MEETING_MINUTE, 0);
         }
         return target;
     }
