@@ -403,10 +403,10 @@
         <div class="final-details">
             <p><strong>📅 Когда:</strong> 1 декабря</p>
             <p><strong>🍽️ Куда:</strong> Хокку, Московское ш., 36А</p>
-            <p><strong>⏰ Во сколько я зайду:</strong> Договоримся)</p>
+            <p><strong>⏰ Во сколько я заберу тебя:</strong> 16:50</p>
             <div style="margin-top: 20px; text-align: center;">
                 <p style="font-weight: 300; margin-bottom: 5px;">Я очень жду этого вечера!</p>
-                <p style="font-size: 20px; font-weight: 600; color: var(--deep-pink); margin-bottom: 0;">Спасибо, что ты есть ❤️‍🔥</p>
+                <p style="font-size: 20px; font-weight: 600; color: var(--deep-pink); margin-bottom: 0;">Спасибо, что ты у меня есть ❤️‍🔥</p>
             </div>
         </div>
     </div>
@@ -516,9 +516,9 @@
         const y = now.getFullYear();
 
         // Дата события (1 декабря текущего года, 18:00)
-        let targetDec = new Date(y, 11, 1, MEETING_HOUR, MEETING_MINUTE, 0);
+        let targetDec = new Date(y, MEETING_MONTH, MEETING_DAY, MEETING_HOUR, MEETING_MINUTE, 0);
         // Конец дня события (2 декабря, 00:00)
-        let endOfDec = new Date(y, 11, 2, 0, 0, 0);
+        let endOfDec = new Date(y, MEETING_MONTH, MEETING_DAY+1, 0, 0, 0);
 
         // Дата спойлера (1 июня следующего года)
         let targetJune = new Date(y + 1, 5, 1, MEETING_HOUR, MEETING_MINUTE, 0);
